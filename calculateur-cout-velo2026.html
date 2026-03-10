@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur Coût de Revient Vélo</title>
+<link href="https://fonts.googleapis.com/css2?family=Asap:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vert: #004A4F;
+    --vert-clair: #3ECDC5;
+    --vert-pale: #e0f7f6;
+    --vert-mid: #a8e9e6;
+    --or: #3ECDC5;
+    --or-fonce: #009a94;
+    --brun: #4D4D4D;
+    --gris: #7a8a8b;
+    --gris-pale: #FBF7F3;
+    --blanc: #FFFFFF;
+    --rouge: #E63946;
+    --shadow: 0 4px 24px rgba(0,74,79,0.10);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Asap', sans-serif;
+    background: var(--gris-pale);
+    color: var(--brun);
+    min-height: 100vh;
+    padding: 32px 16px 60px;
+  }
+
+  .calculator-wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .calc-header {
+    text-align: center;
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .calc-header::before {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: var(--vert);
+    margin: 0 auto 20px;
+    border-radius: 2px;
+  }
+  .calc-header h1 {
+    font-family: 'Asap', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--vert);
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  .calc-header h1 em {
+    font-style: italic;
+    color: var(--vert-clair);
+  }
+  .calc-header p {
+    color: var(--gris);
+    font-size: 1rem;
+    font-weight: 300;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Asap', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--vert);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .icon {
+    width: 32px;
+    height: 32px;
+    background: var(--vert-pale);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  /* FORM ELEMENTS */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--gris);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input[type="number"], select {
+    font-family: 'Asap', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 2px solid var(--vert-mid);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    color: var(--brun);
+    background: var(--gris-pale);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    width: 100%;
+  }
+  input[type="number"]:focus, select:focus {
+    border-color: var(--vert);
+    box-shadow: 0 0 0 3px rgba(45,106,79,0.12);
+    background: var(--blanc);
+  }
+
+  /* TOGGLE BUTTONS */
+  .toggle-group {
+    display: flex;
+    gap: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 2px solid var(--vert-mid);
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 10px 14px;
+    background: var(--gris-pale);
+    border: none;
+    font-family: 'Asap', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gris);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    text-align: center;
+  }
+  .toggle-btn + .toggle-btn { border-left: 2px solid var(--vert-mid); }
+  .toggle-btn.active {
+    background: var(--vert);
+    color: var(--blanc);
+    font-weight: 600;
+  }
+
+  /* CHECKBOX */
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--vert-pale);
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .check-row:hover { background: var(--vert-mid); }
+  .check-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--vert);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .check-row span {
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--brun);
+    line-height: 1.4;
+  }
+
+  /* SLIDER */
+  .slider-wrapper { padding: 4px 0 8px; }
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .slider-value {
+    font-family: 'Asap', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--vert);
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--vert) 0%, var(--vert) var(--pct, 50%), var(--vert-mid) var(--pct, 50%), var(--vert-mid) 100%);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--vert);
+    border: 3px solid var(--blanc);
+    box-shadow: 0 2px 8px rgba(45,106,79,0.3);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+  /* INFO BOX */
+  .info-box {
+    border-left: 3px solid var(--or);
+    background: linear-gradient(135deg, #FFF9E6 0%, #FFFDF5 100%);
+    padding: 12px 16px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-top: 14px;
+    font-size: 0.86rem;
+    color: #7a6025;
+    line-height: 1.6;
+    display: none;
+  }
+  .info-box.visible { display: block; }
+  .info-box strong { color: var(--or-fonce); }
+  .info-box a { color: var(--vert-clair); text-decoration: none; font-weight: 600; }
+  .info-box a:hover { text-decoration: underline; }
+
+  /* RESULTS */
+  .results-card {
+    background: linear-gradient(135deg, var(--vert) 0%, #006b72 100%);
+    border-radius: var(--radius);
+    padding: 32px;
+    color: var(--blanc);
+    box-shadow: 0 8px 32px rgba(45,106,79,0.25);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .results-card::before {
+    content: '🚲';
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    opacity: 0.12;
+  }
+  .results-title {
+    font-family: 'Asap', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+    opacity: 0.85;
+    letter-spacing: 0.03em;
+  }
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 500px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .result-block {
+    background: rgba(255,255,255,0.12);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .result-block .label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.75;
+    margin-bottom: 6px;
+  }
+  .result-block .amount {
+    font-family: 'Asap', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .result-block .sub {
+    font-size: 0.78rem;
+    opacity: 0.65;
+    margin-top: 4px;
+  }
+  .result-block .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* SOURCES */
+  .sources-card {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    border: 1px solid var(--vert-mid);
+    padding: 20px 28px;
+    margin-bottom: 20px;
+  }
+  .sources-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gris);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .sources-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sources-list li {
+    font-size: 0.83rem;
+    color: var(--gris);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .sources-list li::before {
+    content: '↗';
+    color: var(--vert-clair);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .sources-list a {
+    color: var(--vert-clair);
+    text-decoration: none;
+    font-weight: 500;
+    word-break: break-all;
+  }
+  .sources-list a:hover { text-decoration: underline; }
+
+  /* WIDGET MESAIDESVELO */
+  .aide-velo-section {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    border: 2px solid var(--vert-mid);
+    padding: 24px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .aide-velo-section.visible { display: block; }
+  .aide-velo-title {
+    font-family: 'Asap', sans-serif;
+    font-weight: 700;
+    color: var(--vert);
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+  .aide-velo-subtitle {
+    font-size: 0.88rem;
+    color: var(--gris);
+    margin-bottom: 16px;
+  }
+
+  /* CTA BUTTONS */
+  .cta-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  @media (max-width: 560px) { .cta-section { grid-template-columns: 1fr; } }
+
+  .cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 20px;
+    border-radius: var(--radius-sm);
+    font-family: 'Asap', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+  .cta-primary {
+    background: var(--vert);
+    color: var(--blanc);
+  }
+  .cta-secondary {
+    background: var(--blanc);
+    color: var(--vert);
+    border: 2px solid var(--vert);
+  }
+
+  /* SECTION COLLAPSE */
+  .section-toggle {
+    display: none;
+  }
+  .subsection {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--vert-mid);
+  }
+  .subsection.hidden { display: none; }
+
+  /* CREDIT IS BADGE */
+  .credit-is-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: var(--vert-pale);
+    border-radius: var(--radius-sm);
+    padding: 11px 16px;
+    font-size: 0.9rem;
+    color: var(--vert);
+    font-weight: 500;
+  }
+  .credit-is-badge em { font-weight: 400; color: var(--gris); font-style: normal; }
+  .credit-is-source { margin-left: auto; font-size: 0.8rem; color: var(--vert-clair); font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .credit-is-source:hover { text-decoration: underline; }
+  .credit-is-off { background: #f3f4f6; color: var(--gris); }
+  .credit-is-off.hidden { display: none; }
+  .credit-is-badge.hidden { display: none; }
+
+  /* COTISATIONS NOTE */
+  .cotisations-row {
+    margin-top: 14px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.65;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 12px;
+  }
+  .cotisations-row a { color: rgba(255,255,255,0.75); font-weight: 600; }
+  .cotisations-row a:hover { color: #fff; }
+
+  /* DISCLAIMER */
+  .disclaimer-row {
+    margin-top: 16px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 12px;
+  }
+  .disclaimer-row a { color: rgba(255,255,255,0.85); font-weight: 600; }
+  .disclaimer-row a:hover { color: #fff; }
+
+  /* SEPARATOR */
+  .sep {
+    height: 1px;
+    background: var(--vert-pale);
+    margin: 18px 0;
+  }
+
+  /* ANIM */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .results-card { animation: fadeUp 0.4s ease both; }
+
+  /* Prix vélo input prefix */
+  .input-prefix-wrap {
+    position: relative;
+  }
+  .input-prefix-wrap input {
+    padding-left: 36px;
+  }
+  .input-prefix-wrap::before {
+    content: '€';
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--vert);
+    font-weight: 700;
+    font-size: 1rem;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* TOOLTIP */
+  .tip {
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    background: var(--vert-mid);
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--vert);
+    text-align: center;
+    line-height: 17px;
+    cursor: help;
+    vertical-align: middle;
+    margin-left: 5px;
+  }
+
+  .highlight-row {
+    background: var(--vert-pale);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 0.9rem;
+    color: var(--vert);
+    font-weight: 500;
+    display: none;
+  }
+  .highlight-row.visible { display: block; }
+
+  /* R&M link */
+  .rm-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.84rem;
+    color: var(--vert-clair);
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  .rm-link:hover { text-decoration: underline; }
+
+  /* FMD badge */
+  .fmd-box {
+    background: linear-gradient(135deg, #EBF5EE, #D8F3DC);
+    border: 1px solid var(--vert-mid);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.87rem;
+    color: var(--vert);
+    display: none;
+    margin-top: 12px;
+  }
+  .fmd-box.visible { display: block; }
+  .fmd-box strong { font-weight: 700; }
+
+</style>
+</head>
+<body>
+
+<div class="calculator-wrapper">
+
+  <!-- HEADER -->
+  <div class="calc-header">
+    <h1>Calculateur de coût de revient<br><em>vélo</em></h1>
+    <p>Estimez le coût réel de votre vélo selon votre situation et les aides disponibles</p>
+  </div>
+
+  <!-- CARD 1 : PRIX DU VÉLO -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🚲</span> Vélo & Configuration</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Prix public du vélo (TTC)</label>
+        <div class="input-prefix-wrap">
+          <input type="number" id="prixVelo" value="3000" min="0" step="100">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Type de vélo</label>
+        <select id="typeVelo">
+          <option value="classique">Vélo classique / VAE</option>
+          <option value="cargo">Vélo cargo</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="cargoOptions" class="subsection hidden">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Éligibilité Programme Marguerite</label>
+        <div style="font-size:0.82rem;color:var(--gris);margin-bottom:8px;padding-left:1px;">Moins de 20 salariés · Domiciliée sur la Métropole Européenne de Lille</div>
+        <div class="toggle-group" id="toggleMarguerite">
+          <button class="toggle-btn active" onclick="setMarguerite(false)">❌ Non éligible</button>
+          <button class="toggle-btn" onclick="setMarguerite(true)">🌼 Éligible (−1 200 € HT)</button>
+        </div>
+      </div>
+      <div id="margueriteInfo" class="info-box">
+        ✅ <strong>Programme Marguerite éligible !</strong><br>
+        Le coût du vélo cargo est réduit de <strong>1 200 € HT</strong> avant calcul grâce au Programme Marguerite de la Métropole Européenne de Lille.<br>
+        <a href="https://www.programme-marguerite.fr/solutions/lille/2-r-aventure" target="_blank">→ En savoir plus sur le Programme Marguerite</a>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="form-group">
+      <label>Acquisition via</label>
+      <div class="toggle-group" id="toggleAcquis">
+        <button class="toggle-btn active" onclick="setAcquis('entreprise')">🏢 L'entreprise</button>
+        <button class="toggle-btn" onclick="setAcquis('salarie')">👤 Le salarié</button>
+        <button class="toggle-btn" onclick="setAcquis('particulier')">🏠 À titre personnel</button>
+      </div>
+    </div>
+
+    <div id="salarieOptions" class="subsection hidden">
+      <div class="fmd-box" id="fmdBox">
+        🟢 <strong>Forfait Mobilité Durable (FMD)</strong> — Si votre employeur a mis en place le FMD (obligatoire dans le public), vous pouvez bénéficier d'une prise en charge jusqu'à <strong>600 €/an</strong> exonérée de cotisations.<br>
+        Renseignez-vous auprès de votre RH ou <a href="https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/frais-professionnels.html" target="_blank" style="color:var(--vert-clair)">consultez urssaf.fr →</a>
+      </div>
+      <a class="rm-link" href="https://www.r-m.de/fr/online-shop/bikes/" target="_blank">
+        🔗 Découvrir les vélos reconditionnés garantis fabricant R&M
+      </a>
+    </div>
+  </div>
+
+  <!-- CARD 2 : OPTIONS ENTREPRISE -->
+  <div class="card" id="entrepriseCard">
+    <div class="card-title"><span class="icon">📊</span> Paramètres financiers</div>
+
+    <div class="slider-wrapper form-group">
+      <div class="slider-header">
+        <label>Prise en charge employeur</label>
+        <span class="slider-value" id="sliderDisplay">50%</span>
+      </div>
+      <input type="range" id="priseCharge" min="0" max="100" value="50" oninput="updateSlider(this)">
+    </div>
+
+    <div id="tva100Info" class="info-box">
+      ⚠️ <strong>Prise en charge à 100%</strong> — La TVA n'est pas récupérable lorsque l'employeur prend en charge la totalité du vélo (sauf vélo cargo : TVA toujours déductible). Le calcul s'effectue sur le prix TTC.<br>
+      <a href="https://bofip.impots.gouv.fr/bofip/14347-PGP.html/identifiant%3DBOI-RES-TVA-000161-20250430" target="_blank">→ Source BOFIP — TVA vélos</a>
+    </div>
+
+    <div class="sep"></div>
+
+    <div id="creditISStatus" class="credit-is-badge">
+      <span id="creditISIcon">✅</span>
+      <span id="creditISText">Crédit d'IS de 25% appliqué <em>(pris en charge ≥ 70%)</em></span>
+      <a href="https://bofip.impots.gouv.fr/bofip/10630-PGP.html/identifiant%3DBOI-IS-RICI-20-30-20250108" target="_blank" class="credit-is-source">→ Source BOFIP</a>
+    </div>
+    <div id="creditISOffStatus" class="credit-is-badge credit-is-off hidden">
+      <span>⚪</span>
+      <span>Crédit d'IS non appliqué <em>(pris en charge &lt; 70%)</em></span>
+    </div>
+  </div>
+
+  <!-- WIDGET MESAIDESVELO -->
+  <div class="aide-velo-section" id="aideVeloSection">
+    <div class="aide-velo-title">🎁 Trouvez vos aides locales à l'achat</div>
+    <div class="aide-velo-subtitle">Découvrez les subventions disponibles dans votre territoire grâce à mesaidesvelo.fr</div>
+    <script src="https://mesaidesvelo.fr/iframe.js"></script>
+    <div id="mesaidesvelo-widget"></div>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div class="results-card" id="resultsCard">
+    <div class="results-title">📈 Estimation du coût de revient</div>
+    <div class="results-grid">
+      <div class="result-block" id="blockEmployeur">
+        <div class="label">Coût total employeur</div>
+        <div class="amount" id="coutEmployeur">—</div>
+        <div class="sub" id="subEmployeur">hors taxes</div>
+        <div class="badge" id="badgeEmployeur">Affiché HT</div>
+      </div>
+      <div class="result-block" id="blockSalarie">
+        <div class="label">Coût salarié</div>
+        <div class="amount" id="coutSalarie">—</div>
+        <div class="sub" id="subSalarie">mensualisation sur 36 mois</div>
+        <div class="badge" id="badgeSalarie">TTC / mois</div>
+      </div>
+    </div>
+
+    <div class="highlight-row" id="margueriteRow">
+      🌼 Déduction Programme Marguerite appliquée : −1 200 € HT
+    </div>
+
+    <div class="disclaimer-row">
+      * Estimation hors assurance, hors financement, hors accessoires.<br>
+      Pour un devis plus détaillé, <a href="https://koalendar.com/u/ndIZw4UcFwgfwdgHGCTCzQ6FCno1" target="_blank">contactez-nous</a>.
+    </div>
+    <div class="cotisations-row">
+      💡 Ce calcul ne prend pas en compte les économies réalisées sur les cotisations sociales et l'imposition sur le revenu, compte tenu du fait que le vélo ne rentre pas dans le calcul de l'avantage en nature.<br>
+      <a href="https://www.urssaf.fr/accueil/employeur/cotisations/avantages-en-nature.html#ancre-vehicule" target="_blank">→ Source Urssaf — Avantages en nature</a>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="sources-card">
+    <div class="sources-title">📚 Sources & références réglementaires</div>
+    <ul class="sources-list">
+      <li><a href="https://bofip.impots.gouv.fr/bofip/10630-PGP.html/identifiant%3DBOI-IS-RICI-20-30-20250108" target="_blank">Crédit d'impôt IS 25% — BOFIP BOI-IS-RICI-20-30</a></li>
+      <li><a href="https://bofip.impots.gouv.fr/bofip/14347-PGP.html/identifiant%3DBOI-RES-TVA-000161-20250430" target="_blank">TVA vélos mis à disposition des salariés — BOFIP BOI-RES-TVA-000161</a></li>
+      <li><a href="https://2raventure.com/tests/" target="_blank">Programme Marguerite — aide cargo MEL (&lt;20 salariés)</a></li>
+      <li><a href="https://www.r-m.de/fr/online-shop/bikes/" target="_blank">Riese & Müller — vélos reconditionnés garantis fabricant</a></li>
+      <li><a href="https://mesaidesvelo.fr" target="_blank">mesaidesvelo.fr — aides locales à l'achat de vélo</a></li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <a href="https://koalendar.com/u/ndIZw4UcFwgfwdgHGCTCzQ6FCno1" target="_blank" class="cta-btn cta-primary">
+      📅 Réserver un créneau visio
+    </a>
+    <a href="https://2raventure.com/solutions-velos/" target="_blank" class="cta-btn cta-secondary">
+      🚲 En savoir plus sur nos offres vélos
+    </a>
+  </div>
+
+</div>
+
+<script>
+  // STATE
+  let state = {
+    prix: 3000,
+    typeVelo: 'classique',
+    acquis: 'entreprise',
+    marguerite: false,
+    priseCharge: 50
+  };
+
+  // INIT
+  document.getElementById('prixVelo').addEventListener('input', e => { state.prix = parseFloat(e.target.value) || 0; recalculate(); });
+  document.getElementById('typeVelo').addEventListener('change', e => { state.typeVelo = e.target.value; updateUI(); recalculate(); });
+  document.getElementById('priseCharge').addEventListener('input', e => { state.priseCharge = parseInt(e.target.value); updateSlider(e.target); recalculate(); });
+
+  function setMarguerite(val) {
+    state.marguerite = val;
+    document.querySelectorAll('#toggleMarguerite .toggle-btn').forEach((b, i) => {
+      b.classList.toggle('active', i === (val ? 1 : 0));
+    });
+    updateUI();
+    recalculate();
+  }
+
+  function setAcquis(val) {
+    state.acquis = val;
+    document.querySelectorAll('#toggleAcquis .toggle-btn').forEach((b, i) => {
+      b.classList.toggle('active', ['entreprise','salarie','particulier'][i] === val);
+    });
+    updateUI();
+    recalculate();
+  }
+
+  function updateSlider(el) {
+    const pct = parseInt(el.value);
+    state.priseCharge = pct;
+    el.style.setProperty('--pct', pct + '%');
+    document.getElementById('sliderDisplay').textContent = pct + '%';
+    document.getElementById('tva100Info').classList.toggle('visible', pct === 100);
+    // Auto credit IS based on threshold ≥ 70%
+    const creditISOn = pct >= 70;
+    document.getElementById('creditISStatus').classList.toggle('hidden', !creditISOn);
+    document.getElementById('creditISOffStatus').classList.toggle('hidden', creditISOn);
+    recalculate();
+  }
+
+  // Init slider visual
+  const slider = document.getElementById('priseCharge');
+  slider.style.setProperty('--pct', '50%');
+  // Init credit IS display (50% < 70% → off)
+  document.getElementById('creditISStatus').classList.add('hidden');
+  document.getElementById('creditISOffStatus').classList.remove('hidden');
+
+  function updateUI() {
+    // Cargo options
+    const isCargo = state.typeVelo === 'cargo';
+    document.getElementById('cargoOptions').classList.toggle('hidden', !isCargo);
+
+    // Marguerite
+    const isMarguerite = isCargo && state.marguerite;
+    document.getElementById('margueriteInfo').classList.toggle('visible', isMarguerite);
+    document.getElementById('margueriteRow').classList.toggle('visible', isMarguerite);
+
+    // Salarié / particulier options
+    const isSalarie = state.acquis === 'salarie';
+    const isParticulier = state.acquis === 'particulier';
+    document.getElementById('salarieOptions').classList.toggle('hidden', !isSalarie && !isParticulier);
+    document.getElementById('fmdBox').classList.toggle('visible', isSalarie);
+
+    // MesAidesVelo widget
+    document.getElementById('aideVeloSection').classList.toggle('visible', isSalarie || isParticulier);
+
+    // Entreprise card
+    document.getElementById('entrepriseCard').style.display = (state.acquis === 'entreprise') ? '' : 'none';
+  }
+
+  function fmt(n, decimals = 0) {
+    return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(n) + ' €';
+  }
+
+  function recalculate() {
+    let prix = state.prix;
+    const isCargo = state.typeVelo === 'cargo';
+    const isMarguerite = isCargo && state.marguerite;
+    const tauxPc = state.priseCharge / 100;
+    const tauxSalarie = 1 - tauxPc;
+    // Credit IS auto: applied if prise en charge ≥ 70%
+    const creditIS = state.priseCharge >= 70 ? 0.75 : 1;
+
+    // Déduction Marguerite (1200€ HT = 1440€ TTC)
+    if (isMarguerite) {
+      prix = Math.max(0, prix - 1440);
+    }
+
+    let coutEmployeur, coutSalarie;
+
+    if (state.acquis === 'entreprise') {
+      // Cargo : TVA toujours déductible (même à 100%)
+      // Non-cargo à 100% : TVA non récupérable → calcul sur TTC
+      const tvaDeductible = isCargo || state.priseCharge < 100;
+      if (tvaDeductible) {
+        coutEmployeur = (prix / 1.2) * creditIS * tauxPc;
+      } else {
+        coutEmployeur = prix * creditIS * tauxPc;
+      }
+      coutSalarie = prix * creditIS * tauxSalarie / 36;
+
+      document.getElementById('coutEmployeur').textContent = fmt(coutEmployeur, 2);
+      document.getElementById('coutSalarie').textContent = fmt(coutSalarie, 2);
+      document.getElementById('subEmployeur').textContent = 'hors taxes';
+      document.getElementById('subSalarie').textContent = 'mensualité sur 36 mois';
+      document.getElementById('badgeEmployeur').textContent = 'Affiché HT';
+      document.getElementById('badgeSalarie').textContent = 'TTC / mois';
+      document.getElementById('blockSalarie').style.display = tauxSalarie > 0 ? '' : 'none';
+    } else if (state.acquis === 'salarie' || state.acquis === 'particulier') {
+      coutSalarie = prix / 36;
+
+      document.getElementById('coutEmployeur').textContent = '—';
+      document.getElementById('coutSalarie').textContent = fmt(coutSalarie, 2);
+      document.getElementById('subEmployeur').textContent = 'non applicable';
+      document.getElementById('subSalarie').textContent = 'mensualité sur 36 mois';
+      document.getElementById('badgeEmployeur').textContent = 'N/A';
+      document.getElementById('badgeSalarie').textContent = 'TTC / mois';
+      document.getElementById('blockSalarie').style.display = '';
+    }
+  }
+
+  // INITIAL RUN
+  updateUI();
+  recalculate();
+</script>
+</body>
+</html>
