@@ -286,7 +286,16 @@
     grid-template-columns: 1fr 1fr;
     gap: 20px;
   }
-  @media (max-width: 500px) { .results-grid { grid-template-columns: 1fr; } }
+  .results-grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  @media (max-width: 640px) {
+    .results-grid-3 { grid-template-columns: 1fr; }
+    .results-grid   { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 641px) and (max-width: 780px) {
+    .results-grid-3 { grid-template-columns: 1fr 1fr; }
+  }
 
   .result-block {
     background: rgba(255,255,255,0.12);
@@ -294,6 +303,10 @@
     padding: 18px 20px;
     backdrop-filter: blur(8px);
     border: 1px solid rgba(255,255,255,0.15);
+  }
+  .result-block-accent {
+    background: rgba(62,205,197,0.18);
+    border: 1px solid rgba(62,205,197,0.45);
   }
   .result-block .label {
     font-size: 0.78rem;
@@ -561,7 +574,79 @@
   }
   .rm-link:hover { text-decoration: underline; }
 
-  /* FMD badge */
+  /* FMD EMPLOYEUR */
+  .fmd-employeur-section {
+    background: var(--vert-pale);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fmd-employeur-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .fmd-employeur-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .fmd-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vert);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 9px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .fmd-source-link {
+    font-size: 0.8rem;
+    color: var(--vert);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .fmd-source-link:hover { text-decoration: underline; }
+  .fmd-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .fmd-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .fmd-input-wrap.hidden { display: none; }
+
+  /* FMD RESULT ROW */
+  .fmd-result-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.9);
+    border: 1px solid rgba(62,205,197,0.3);
+  }
+  .fmd-result-row.hidden { display: none; }
+  .fmd-result-row strong { color: #3ECDC5; font-size: 1rem; }
+
+  /* FMD badge (salarié) */
   .fmd-box {
     background: linear-gradient(135deg, #EBF5EE, #D8F3DC);
     border: 1px solid var(--vert-mid);
@@ -583,7 +668,7 @@
 
   <!-- HEADER -->
   <div class="calc-header">
-    <h1>Calculateur de coût de revient<br><em>vélo</em></h1>
+    <h1>Calculateur de coût de revient<br><em>vélo professionnel</em></h1>
     <p>Estimez le coût réel de votre vélo selon votre situation et les aides disponibles</p>
   </div>
 
@@ -636,8 +721,8 @@
 
     <div id="salarieOptions" class="subsection hidden">
       <div class="fmd-box" id="fmdBox">
-        🟢 <strong>Forfait Mobilité Durable (FMD)</strong> — Si votre employeur a mis en place le FMD (obligatoire dans le public), vous pouvez bénéficier d'une prise en charge jusqu'à <strong>600 €/an</strong> exonérée de cotisations.<br>
-        Renseignez-vous auprès de votre RH ou <a href="https://www.urssaf.fr/accueil/employeur/beneficier-exonerations/frais-professionnels.html" target="_blank" style="color:var(--vert-clair)">consultez urssaf.fr →</a>
+        🟢 <strong>Forfait Mobilité Durable (FMD)</strong> — Si votre employeur a mis en place le FMD (obligatoire dans le public), vous pouvez bénéficier d'une prise en charge jusqu'à <strong>700 €/an</strong> exonérée de cotisations.<br>
+        Renseignez-vous auprès de votre RH ou <a href="https://www.service-public.fr/particuliers/vosdroits/F34066" target="_blank" style="color:var(--vert-clair)">consultez service-public.fr →</a>
       </div>
       <a class="rm-link" href="https://www.r-m.de/fr/online-shop/bikes/" target="_blank">
         🔗 Découvrir les vélos reconditionnés garantis fabricant R&M
@@ -665,13 +750,43 @@
     <div class="sep"></div>
 
     <div id="creditISStatus" class="credit-is-badge">
-      <span id="creditISIcon">✅</span>
-      <span id="creditISText">Crédit d'IS de 25% appliqué <em>(pris en charge ≥ 70%)</em></span>
+      <span>✅</span>
+      <span>Crédit d'IS de 25% appliqué <em>(prise en charge ≥ 70% · applicable jusqu'en 2027)</em></span>
       <a href="https://bofip.impots.gouv.fr/bofip/10630-PGP.html/identifiant%3DBOI-IS-RICI-20-30-20250108" target="_blank" class="credit-is-source">→ Source BOFIP</a>
     </div>
     <div id="creditISOffStatus" class="credit-is-badge credit-is-off hidden">
       <span>⚪</span>
-      <span>Crédit d'IS non appliqué <em>(pris en charge &lt; 70%)</em></span>
+      <span>Crédit d'IS non appliqué <em>(prise en charge &lt; 70%)</em></span>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="fmd-employeur-section">
+      <div class="fmd-employeur-header">
+        <div class="fmd-employeur-label">
+          <span class="fmd-tag">FMD</span>
+          <div>
+            <div style="font-size:0.82rem;font-weight:600;color:var(--gris);text-transform:uppercase;letter-spacing:0.05em;">Forfait Mobilité Durable employeur</div>
+            <div style="font-size:0.8rem;color:var(--gris);margin-top:2px;">Exonéré de cotisations sociales · jusqu'à 600 €/an/salarié</div>
+          </div>
+        </div>
+        <a href="https://entreprendre.service-public.gouv.fr/vosdroits/F33808" target="_blank" class="fmd-source-link">→ Service-public.fr</a>
+      </div>
+      <div class="fmd-toggle-row">
+        <div class="toggle-group" id="toggleFMD" style="max-width:280px">
+          <button class="toggle-btn active" onclick="setFMD(false)">Non activé</button>
+          <button class="toggle-btn" onclick="setFMD(true)">✅ Activé</button>
+        </div>
+        <div id="fmdInputWrap" class="fmd-input-wrap hidden">
+          <label style="font-size:0.8rem;white-space:nowrap;">Montant FMD annuel</label>
+          <div class="input-prefix-wrap" style="max-width:150px">
+            <input type="number" id="fmdMontant" value="600" min="0" max="600" step="50" oninput="state.fmdMontant=Math.min(600,parseFloat(this.value)||0);recalculate()">
+          </div>
+          <span style="font-size:0.8rem;color:var(--gris);white-space:nowrap;">€ / an max. 600 €</span>
+        </div>
+      </div>
+    </div>
+
     </div>
   </div>
 
@@ -686,19 +801,30 @@
   <!-- RÉSULTATS -->
   <div class="results-card" id="resultsCard">
     <div class="results-title">📈 Estimation du coût de revient</div>
-    <div class="results-grid">
+    <div class="results-grid results-grid-3">
       <div class="result-block" id="blockEmployeur">
         <div class="label">Coût total employeur</div>
         <div class="amount" id="coutEmployeur">—</div>
         <div class="sub" id="subEmployeur">hors taxes</div>
         <div class="badge" id="badgeEmployeur">Affiché HT</div>
       </div>
+      <div class="result-block result-block-accent" id="blockAmort">
+        <div class="label">Coût annuel employeur</div>
+        <div class="amount" id="coutAmort">—</div>
+        <div class="sub">amortissement linéaire 3 ans</div>
+        <div class="badge">HT / an</div>
+      </div>
       <div class="result-block" id="blockSalarie">
         <div class="label">Coût salarié</div>
         <div class="amount" id="coutSalarie">—</div>
-        <div class="sub" id="subSalarie">mensualisation sur 36 mois</div>
+        <div class="sub" id="subSalarie">mensualité sur 36 mois</div>
         <div class="badge" id="badgeSalarie">TTC / mois</div>
       </div>
+    </div>
+
+    <div class="fmd-result-row hidden" id="fmdResultRow">
+      <span class="fmd-tag" style="background:rgba(62,205,197,0.25);color:#3ECDC5;">FMD</span>
+      <span id="fmdResultText">Forfait Mobilité Durable : <strong id="fmdResultAmount">—</strong>/an pris en charge par l'employeur, non soumis à cotisations sociales</span>
     </div>
 
     <div class="highlight-row" id="margueriteRow">
@@ -707,7 +833,7 @@
 
     <div class="disclaimer-row">
       * Estimation hors assurance, hors financement, hors accessoires.<br>
-      Pour un devis plus détaillé, <a href="https://2raventure.com/contact/" target="_blank">contactez-nous</a>.
+      Pour un devis plus détaillé, <a href="https://koalendar.com/u/ndIZw4UcFwgfwdgHGCTCzQ6FCno1" target="_blank">contactez-nous</a>.
     </div>
     <div class="cotisations-row">
       💡 Ce calcul ne prend pas en compte les économies réalisées sur les cotisations sociales et l'imposition sur le revenu, compte tenu du fait que le vélo ne rentre pas dans le calcul de l'avantage en nature.<br>
@@ -719,9 +845,10 @@
   <div class="sources-card">
     <div class="sources-title">📚 Sources & références réglementaires</div>
     <ul class="sources-list">
-      <li><a href="https://bofip.impots.gouv.fr/bofip/10630-PGP.html/identifiant%3DBOI-IS-RICI-20-30-20250108" target="_blank">Crédit d'impôt IS 25% — BOFIP BOI-IS-RICI-20-30</a></li>
+      <li><a href="https://bofip.impots.gouv.fr/bofip/10630-PGP.html/identifiant%3DBOI-IS-RICI-20-30-20250108" target="_blank">Crédit d'impôt IS 25% (jusqu'en 2027) — BOFIP BOI-IS-RICI-20-30</a></li>
       <li><a href="https://bofip.impots.gouv.fr/bofip/14347-PGP.html/identifiant%3DBOI-RES-TVA-000161-20250430" target="_blank">TVA vélos mis à disposition des salariés — BOFIP BOI-RES-TVA-000161</a></li>
-      <li><a href="https://2raventure.com/tests/" target="_blank">Programme Marguerite — aide cargo MEL (&lt;20 salariés)</a></li>
+      <li><a href="https://entreprendre.service-public.gouv.fr/vosdroits/F33808" target="_blank">Forfait Mobilité Durable employeur — Service-public.fr</a></li>
+      <li><a href="https://2raventure.com/tests/pour" target="_blank">Programme Marguerite — aide cargo MEL (&lt;20 salariés)</a></li>
       <li><a href="https://www.r-m.de/fr/online-shop/bikes/" target="_blank">Riese & Müller — vélos reconditionnés garantis fabricant</a></li>
       <li><a href="https://mesaidesvelo.fr" target="_blank">mesaidesvelo.fr — aides locales à l'achat de vélo</a></li>
     </ul>
@@ -746,13 +873,24 @@
     typeVelo: 'classique',
     acquis: 'entreprise',
     marguerite: false,
-    priseCharge: 50
+    priseCharge: 50,
+    fmdActif: false,
+    fmdMontant: 600
   };
 
   // INIT
   document.getElementById('prixVelo').addEventListener('input', e => { state.prix = parseFloat(e.target.value) || 0; recalculate(); });
   document.getElementById('typeVelo').addEventListener('change', e => { state.typeVelo = e.target.value; updateUI(); recalculate(); });
   document.getElementById('priseCharge').addEventListener('input', e => { state.priseCharge = parseInt(e.target.value); updateSlider(e.target); recalculate(); });
+
+  function setFMD(val) {
+    state.fmdActif = val;
+    document.querySelectorAll('#toggleFMD .toggle-btn').forEach((b, i) => {
+      b.classList.toggle('active', i === (val ? 1 : 0));
+    });
+    document.getElementById('fmdInputWrap').classList.toggle('hidden', !val);
+    recalculate();
+  }
 
   function setMarguerite(val) {
     state.marguerite = val;
@@ -825,7 +963,6 @@
     const isMarguerite = isCargo && state.marguerite;
     const tauxPc = state.priseCharge / 100;
     const tauxSalarie = 1 - tauxPc;
-    // Credit IS auto: applied if prise en charge ≥ 70%
     const creditIS = state.priseCharge >= 70 ? 0.75 : 1;
 
     // Déduction Marguerite (1200€ HT = 1440€ TTC)
@@ -836,33 +973,52 @@
     let coutEmployeur, coutSalarie;
 
     if (state.acquis === 'entreprise') {
-      // Cargo : TVA toujours déductible (même à 100%)
-      // Non-cargo à 100% : TVA non récupérable → calcul sur TTC
       const tvaDeductible = isCargo || state.priseCharge < 100;
-      if (tvaDeductible) {
-        coutEmployeur = (prix / 1.2) * creditIS * tauxPc;
-      } else {
-        coutEmployeur = prix * creditIS * tauxPc;
-      }
-      coutSalarie = prix * creditIS * tauxSalarie / 36;
+      const prixHT = tvaDeductible ? prix / 1.2 : prix;
+
+      coutEmployeur = prixHT * creditIS * tauxPc;
+
+      // Amortissement linéaire 3 ans : coût HT employeur / 3
+      const coutAmortAnnuel = coutEmployeur / 3;
+
+      // FMD : réduit la part mensuelle salarié
+      const fmdAnnuel = state.fmdActif ? Math.min(state.fmdMontant, 600) : 0;
+      const fmdMensuel = fmdAnnuel / 12;
+
+      coutSalarie = Math.max(0, prix * creditIS * tauxSalarie / 36 - fmdMensuel);
 
       document.getElementById('coutEmployeur').textContent = fmt(coutEmployeur, 2);
+      document.getElementById('coutAmort').textContent = fmt(coutAmortAnnuel, 2);
       document.getElementById('coutSalarie').textContent = fmt(coutSalarie, 2);
-      document.getElementById('subEmployeur').textContent = 'hors taxes';
-      document.getElementById('subSalarie').textContent = 'mensualité sur 36 mois';
+      document.getElementById('subEmployeur').textContent = 'coût total sur 3 ans, HT';
+      document.getElementById('subSalarie').textContent = 'mensualité sur 36 mois' + (state.fmdActif ? ' · FMD déduit' : '');
       document.getElementById('badgeEmployeur').textContent = 'Affiché HT';
       document.getElementById('badgeSalarie').textContent = 'TTC / mois';
+      document.getElementById('blockAmort').style.display = '';
       document.getElementById('blockSalarie').style.display = tauxSalarie > 0 ? '' : 'none';
+
+      // FMD result row
+      const fmdRow = document.getElementById('fmdResultRow');
+      if (state.fmdActif && fmdAnnuel > 0) {
+        fmdRow.classList.remove('hidden');
+        document.getElementById('fmdResultAmount').textContent = fmt(fmdAnnuel, 0);
+      } else {
+        fmdRow.classList.add('hidden');
+      }
+
     } else if (state.acquis === 'salarie' || state.acquis === 'particulier') {
       coutSalarie = prix / 36;
 
       document.getElementById('coutEmployeur').textContent = '—';
+      document.getElementById('coutAmort').textContent = '—';
       document.getElementById('coutSalarie').textContent = fmt(coutSalarie, 2);
       document.getElementById('subEmployeur').textContent = 'non applicable';
       document.getElementById('subSalarie').textContent = 'mensualité sur 36 mois';
       document.getElementById('badgeEmployeur').textContent = 'N/A';
       document.getElementById('badgeSalarie').textContent = 'TTC / mois';
+      document.getElementById('blockAmort').style.display = 'none';
       document.getElementById('blockSalarie').style.display = '';
+      document.getElementById('fmdResultRow').classList.add('hidden');
     }
   }
 
