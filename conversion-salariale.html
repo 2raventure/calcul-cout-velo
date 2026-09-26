@@ -114,7 +114,13 @@ blockquote{margin:0;padding:10px 14px;border-left:3px solid var(--turq);backgrou
 a{color:var(--accent)}
 .sources{font-size:.82rem;color:var(--ink-2)}
 .sources ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .busy{opacity:.55;transition:opacity .15s}
+.floor{display:grid;gap:6px;padding:12px 14px;border-radius:8px;background:var(--accent-soft);border-left:3px solid var(--turq);font-size:.84rem}
+.floor .lbl{color:var(--ink)}
+.hint.err{color:var(--warm);font-weight:600}
+.floor strong{color:var(--ink)}
 button.link{font:inherit;font-size:.82rem;background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;color:var(--ink-2);cursor:pointer}
 button.link:hover{border-color:var(--accent);color:var(--accent)}
 </style>
@@ -133,7 +139,8 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
         <legend>Le salarié</legend>
         <div class="field">
           <label for="brut">Salaire brut mensuel actuel</label>
-          <div class="unit"><input type="number" id="brut" min="0" step="10" value="2800"><span>€ / mois</span></div>
+          <div class="unit"><input type="number" id="brut" min="0" step="10" value="2800" aria-describedby="brutMsg"><span>€ / mois</span></div>
+          <p class="hint" id="brutMsg">Au minimum le Smic mensuel brut : <span class="num" id="smicMin">…</span>.</p>
         </div>
         <div class="row2">
           <div class="field">
@@ -170,6 +177,15 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
           <div class="unit"><input type="number" id="tauxPerso" min="0" max="45" step="0.1" value="5"><span>%</span></div>
         </div>
         <p class="hint">Calcul sur un revenu salarial seul. En couple, le barème suppose un conjoint sans revenu : préférez le taux personnalisé.</p>
+        <div class="field">
+          <label for="minConv">Minimum conventionnel de la branche</label>
+          <div class="unit"><input type="number" id="minConv" min="0" step="10" placeholder="Facultatif"><span>€ brut / mois</span></div>
+        </div>
+        <div class="floor" id="floorBox">
+          <span class="lbl">Plancher de la conversion</span>
+          <p>Le brut ne peut pas descendre sous le Smic ni sous le minimum conventionnel. Smic mensuel brut en vigueur : <strong class="num" id="smicVal">…</strong>.</p>
+          <p>Plancher retenu : <strong class="num" id="floorVal">…</strong> · marge de conversion : <strong class="num" id="margeVal">…</strong></p>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -245,7 +261,7 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
       </section>
 
       <section class="card">
-        <div class="cardhead"><h2>Bulletin de paie, avant et après</h2><span class="hint">Montants mensuels · moteur Urssaf <span id="ver"></span></span></div>
+        <div class="cardhead"><h2>Bulletin de paie, avant et après</h2><span class="hint">Montants mensuels · moteur Urssaf</span></div>
         <div class="tablewrap">
           <table>
             <thead><tr><th>Ligne</th><th>Avant</th><th>Après</th><th>Écart</th></tr></thead>
@@ -288,7 +304,7 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
       <h3>Les règles du jeu</h3>
       <ul>
         <li>Un avenant au contrat de travail, signé et réversible, pour chaque salarié volontaire.</li>
-        <li>Le brut réduit reste au-dessus du Smic et du minimum conventionnel.</li>
+        <li>Le brut réduit reste au-dessus du Smic et du minimum conventionnel. Le calculateur bloque la conversion à ce plancher.</li>
         <li>Une assiette plus basse réduit un peu les droits : retraite, chômage, indemnités journalières, prévoyance.</li>
         <li>Le vélo reste propriété de l'employeur ou du loueur pendant la durée du contrat.</li>
         <li>Le traitement TVA se valide avec l'expert-comptable.</li>
@@ -298,7 +314,7 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
 
   <div class="card sources">
     <h3>Méthode et sources</h3>
-    <p>Salaires, cotisations et impôt sont calculés dans votre navigateur par <a href="https://mon-entreprise.urssaf.fr/d%C3%A9veloppeur/biblioth%C3%A8que-de-calcul" target="_blank" rel="noopener">la bibliothèque de calcul de mon-entreprise.urssaf.fr</a> (modèle social 11.1, moteur Publicodes), la même que le simulateur de coût d'embauche. Le coût mensuel du vélo est son prix HT réparti sur la durée, plus l'entretien. Hypothèses : entreprise de 20 à 49 salariés, versement mobilité non intégré. L'impact sur l'impôt sur les sociétés hors réduction flotte n'est pas modélisé. Estimation indicative, sans valeur de conseil juridique ou fiscal.</p>
+    <p>Salaires, cotisations et impôt sont calculés dans votre navigateur par <a href="https://mon-entreprise.urssaf.fr/d%C3%A9veloppeur/biblioth%C3%A8que-de-calcul" target="_blank" rel="noopener">la bibliothèque de calcul de mon-entreprise.urssaf.fr</a> (modèle social, dernière version 11.x chargée à chaque ouverture, moteur Publicodes). Le Smic et les taux suivent donc les mises à jour publiées par l'Urssaf, la même que le simulateur de coût d'embauche. Le coût mensuel du vélo est son prix HT réparti sur la durée, plus l'entretien. Hypothèses : entreprise de 20 à 49 salariés, versement mobilité non intégré. L'impact sur l'impôt sur les sociétés hors réduction flotte n'est pas modélisé. Estimation indicative, sans valeur de conseil juridique ou fiscal.</p>
     <ul>
       <li><a href="https://boss.gouv.fr/portail/accueil/autres-elements-de-remuneration/avantages-en-nature.html#titre-chapitre-4---avantage-en-nature-section-2---modalites-devaluatio-c-cas-particuliers-4-velo-mis-a-disposition-par-lem" target="_blank" rel="noopener">BOSS · Avantages en nature · Vélo mis à disposition par l'employeur</a></li>
       <li><a href="https://bofip.impots.gouv.fr/bofip/14347-PGP.html/identifiant%3DBOI-RES-TVA-000161-20250430" target="_blank" rel="noopener">BOFiP · Rescrit BOI-RES-TVA-000161 · TVA des véhicules mis à disposition des salariés</a></li>
@@ -310,8 +326,8 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
 </div>
 
 <script type="module">
-const PUBLICODES = 'https://cdn.jsdelivr.net/npm/publicodes@1.10.3/+esm'
-const MODELE = 'https://cdn.jsdelivr.net/npm/modele-social@11.1.0/+esm'
+const PUBLICODES = 'https://cdn.jsdelivr.net/npm/publicodes@1/+esm'
+const MODELE = 'https://cdn.jsdelivr.net/npm/modele-social@11/+esm'
 
 function makeCalc(engine) {
   const ev = (r, u) => { const n = engine.evaluate(u ? { valeur: r, unité: u } : r); return n.nodeValue ?? 0 }
@@ -407,7 +423,7 @@ function readParams() {
     impot: $('impot').value, famille: $('famille').value,
     enfants: Math.max(0, Math.round(num('enfants'))), tauxPerso: Math.max(0, num('tauxPerso')),
     prixTTC: Math.max(0, num('prix')), duree: parseInt($('duree').value, 10), servicesHT: Math.max(0, num('services')),
-    priseCharge: num('pc'), mode: radio('mode'), Rmanuel: Math.max(0, num('R')),
+    priseCharge: num('pc'), mode: radio('mode'), Rmanuel: Math.max(0, num('R')), minConv: Math.max(0, num('minConv')),
     tva: $('tva').checked, fmd: Math.min(600, Math.max(0, num('fmd'))), reducIS: $('reducIS').checked,
   }
 }
@@ -419,14 +435,32 @@ function syncVisibility() {
   $('pcOut').textContent = $('pc').value + ' %'
 }
 
-let calc = null, last = null
+let calc = null, last = null, SMIC = 0, smicFilled = false
 function render() {
   syncVisibility()
   if (!calc) return
   const p = readParams()
-  if (p.brut <= 0) return
-  const R = p.mode === 'auto' ? calc.conversionNeutre(p) : Math.min(p.brut, p.Rmanuel)
+  const smic = SMIC
+  const msg = $('brutMsg')
+  if (p.brut < smic) {
+    msg.className = 'hint err'
+    msg.textContent = `Le salaire brut ne peut pas être inférieur au Smic mensuel brut (${eur(smic)}).`
+    return
+  }
+  msg.className = 'hint'
+  msg.innerHTML = smicFilled
+    ? `Montant inférieur au Smic : remplacé par le Smic mensuel brut, <span class="num">${eur(smic)}</span>.`
+    : `Au minimum le Smic mensuel brut : <span class="num">${eur(smic)}</span>.`
+  smicFilled = false
+  const plancher = Math.max(smic, p.minConv)
+  const plancherConv = p.minConv > smic
+  const Rmax = Math.max(0, Math.floor((p.brut - plancher) * 100) / 100)
+  const Rvoulu = p.mode === 'auto' ? calc.conversionNeutre(p) : Math.min(p.brut, p.Rmanuel)
+  const R = Math.min(Rvoulu, Rmax)
   const b = calc.bilan(p, R)
+  $('smicVal').textContent = eur(smic)
+  $('floorVal').textContent = eur(plancher) + (plancherConv ? ' (minimum conventionnel)' : ' (Smic)')
+  $('margeVal').textContent = eur(Rmax)
   last = { p, b }
   const n = p.duree
 
@@ -442,9 +476,16 @@ function render() {
   $('tPct').textContent = b.v.mensuelTTC > 0 ? Math.round(100 * netCost / b.v.mensuelTTC) + ' %' : '—'
 
   const a = $('smicAlert')
-  if (b.sousSmic) { a.hidden = false; a.textContent = `Le brut après conversion (${eur(b.apres.brut)}) passe sous le Smic mensuel (${eur(b.avant.smic)}). La conversion n'est pas possible à ce niveau : augmentez la prise en charge employeur.` }
-  else if (R > 0 && b.apres.brut < b.avant.smic * 1.02) { a.hidden = false; a.textContent = `Le brut après conversion reste juste au-dessus du Smic. Vérifiez aussi le minimum conventionnel de la branche.` }
-  else a.hidden = true
+  const nomPlancher = plancherConv ? 'le minimum conventionnel' : 'le Smic'
+  if (Rvoulu > Rmax + 0.005) {
+    a.hidden = false
+    a.textContent = Rmax <= 0
+      ? `Le salaire brut est déjà au niveau du plancher (${nomPlancher}, ${eur(plancher)}). Aucune conversion n'est possible : le vélo peut être financé par une prise en charge employeur.`
+      : `La conversion est limitée à ${eur(Rmax)} pour ne pas descendre sous ${nomPlancher} (${eur(plancher)}). Il faudrait ${eur(Rvoulu)} : l'écart reste à la charge de l'employeur, ou se couvre en augmentant sa prise en charge.`
+  } else if (R > 0 && p.brut - R < plancher * 1.02) {
+    a.hidden = false
+    a.textContent = `Le brut après conversion reste juste au-dessus de ${nomPlancher} (${eur(plancher)}). Une revalorisation du Smic ou de la grille pourrait réduire la marge.`
+  } else a.hidden = true
 
   // Décomposition du vélo TTC
   const total = b.v.mensuelTTC
@@ -516,6 +557,21 @@ let t = null
 const schedule = () => { syncVisibility(); clearTimeout(t); $('results').classList.add('busy'); t = setTimeout(() => { try { render() } finally { $('results').classList.remove('busy') } }, 120) }
 $('f').addEventListener('input', schedule)
 $('f').addEventListener('change', schedule)
+// Saisie bloquée au Smic : un brut inférieur est ramené au Smic à la validation du champ
+let fillT = null
+function fillSmic() {
+  clearTimeout(fillT)
+  if (!SMIC) return
+  const v = parseFloat($('brut').value)
+  if (!isFinite(v) || v < SMIC) {
+    $('brut').value = (Math.ceil(SMIC * 100) / 100).toFixed(2)
+    smicFilled = true
+    schedule()
+  }
+}
+// Pendant la frappe, on laisse une courte pause avant de remplir le Smic
+$('brut').addEventListener('input', () => { clearTimeout(fillT); fillT = setTimeout(fillSmic, 1200) })
+$('brut').addEventListener('change', fillSmic)
 $('f').addEventListener('submit', e => e.preventDefault())
 
 $('copy').addEventListener('click', async () => {
@@ -528,7 +584,7 @@ $('copy').addEventListener('click', async () => {
     `Vélo et entretien mis à disposition : ${eur(b.v.mensuelTTC)} TTC / mois`,
     `Gain salarié vs achat personnel : ${signed(b.gainSalarie)} / mois, ${signed(b.gainSalarie * p.duree, 0)} au total`,
     `Solde employeur : ${signed(b.soldeEmployeur)} / mois`,
-    `Calcul : moteur Urssaf mon-entreprise (modèle social 11.1). Estimation indicative.`,
+    `Calcul : moteur Urssaf mon-entreprise (modèle social). Estimation indicative.`,
   ].join('\n')
   const btn = $('copy')
   try { await navigator.clipboard.writeText(txt); btn.textContent = 'Synthèse copiée' }
@@ -541,9 +597,13 @@ try {
   const [{ default: Engine }, { default: rules }] = await Promise.all([import(PUBLICODES), import(MODELE)])
   const engine = new Engine(rules, { logger: { log() {}, warn() {}, error() {} } })
   calc = makeCalc(engine)
+  engine.setSituation({ 'dirigeant': 'non', 'salarié . contrat . salaire brut': '2000 €/mois' })
+  SMIC = engine.evaluate({ valeur: 'SMIC', unité: '€/mois' }).nodeValue
+  const smicPlancher = Math.ceil(SMIC * 100) / 100
+  $('brut').min = smicPlancher
+  $('smicMin').textContent = eur(SMIC)
   $('engineDot').className = 'dot ok'
-  $('engineTxt').textContent = 'Moteur de calcul Urssaf chargé · modèle social 11.1 · barèmes 2026'
-  $('ver').textContent = '11.1'
+  $('engineTxt').textContent = 'Moteur de calcul Urssaf chargé · modèle social à jour'
   render()
 } catch (err) {
   $('engineDot').className = 'dot err'
