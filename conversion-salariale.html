@@ -1,0 +1,555 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Vélo de fonction par conversion de salaire</title>
+<meta name="description" content="Calculateur 2R Aventure : conversion de salaire brut et mise à disposition d'un vélo, calculée avec le moteur officiel de l'Urssaf.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Asap:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --ground:#FBF7F3; --panel:#FFFFFF; --ink:#004A4F; --text:#4D4D4D; --ink-2:#4D4D4D; --ink-3:#85807A;
+  --line:#E8E0D7; --line-2:#F4EEE8;
+  --accent:#004A4F; --accent-soft:#E0F6F5; --accent-ink:#FFFFFF; --turq:#3ECDC5;
+  --warm:#A94A2E; --warm-soft:#F8E6DE;
+  --bar-velo:#004A4F; --bar-net:#3ECDC5; --bar-cot:#4F8C8F; --bar-ir:#A8E7E3; --bar-fmd:#D9C4A8;
+  --display:"Asap", "Segoe UI", system-ui, sans-serif;
+  --body:"Asap", "Segoe UI", system-ui, sans-serif;
+  --mono:"Asap", "Segoe UI", system-ui, sans-serif;
+  --r:10px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--ground);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:28px 56px}
+.wrap{max-width:1180px;margin-inline:auto;display:grid;gap:24px}
+h1,h2,h3{color:var(--ink);font-family:var(--display);font-weight:700;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(1.7rem,3.4vw,2.5rem);line-height:1.1}
+h2{font-size:1.15rem}
+h3{font-size:1rem}
+p{margin:0}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);border-bottom:3px solid var(--turq);justify-self:start;padding-bottom:2px;font-weight:700}
+header.top{display:grid;gap:10px;max-width:780px}
+header.top .lead{color:var(--ink-2);font-size:1.05rem;max-width:65ch}
+.engine{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;color:var(--ink-2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+.dot.ok{background:var(--turq)} .dot.err{background:var(--warm)}
+
+.layout{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:880px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+/* Formulaire */
+form{display:grid;gap:16px}
+fieldset{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:16px;margin:0;display:grid;gap:14px;min-width:0}
+legend{font-family:var(--display);font-weight:700;font-size:1rem;padding:0 6px}
+.field{display:grid;gap:5px}
+.field > label, .lbl{font-size:.85rem;font-weight:600;color:var(--ink-2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint{font-size:.78rem;color:var(--ink-3)}
+.unit{position:relative}
+.unit input{padding-right:64px}
+.unit span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:.8rem;color:var(--ink-3);pointer-events:none}
+input[type=number],select{width:100%;font:inherit;font-variant-numeric:tabular-nums;font-size:.95rem;color:var(--text);background:var(--ground);border:1px solid var(--line);border-radius:7px;padding:8px 10px;min-width:0}
+select{font-family:var(--body)}
+input:focus-visible,select:focus-visible,button:focus-visible,.seg label:focus-within{outline:2px solid var(--turq);outline-offset:2px}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--ground)}
+.seg label{flex:1;text-align:center;font-size:.85rem;padding:7px 6px;cursor:pointer;color:var(--ink-2);position:relative}
+.seg label + label{border-left:1px solid var(--line)}
+.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.seg label:has(input:checked){background:var(--accent);color:var(--accent-ink);font-weight:600}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.88rem;cursor:pointer}
+.check input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px;flex:none}
+.check small{display:block;color:var(--ink-3);font-size:.78rem}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.rangehead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.rangehead .num{white-space:nowrap;font-weight:600;color:var(--ink)}
+
+/* Résultats */
+.results{display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:880px){.results{position:static}}
+.hero{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--turq);border-radius:var(--r);padding:20px;display:grid;gap:16px}
+.formula{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;font-size:1rem}
+.formula .big{color:var(--ink);font-family:var(--display);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;line-height:1}
+.formula .arrow{color:var(--ink-3);font-size:1.3rem}
+.formula .cap{display:block;font-size:.78rem;color:var(--ink-3);font-family:var(--body);font-weight:400;margin-top:4px}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.tiles{grid-template-columns:minmax(0,1fr)}}
+.tile{border-radius:8px;padding:12px 14px;display:grid;gap:2px;background:var(--line-2)}
+.tile .k{font-size:.78rem;color:var(--ink-2);font-weight:600}
+.tile .v{font-family:var(--mono);font-size:1.25rem;font-weight:600;font-variant-numeric:tabular-nums}
+.tile .s{font-size:.76rem;color:var(--ink-3)}
+.tile.good{background:var(--accent-soft)} .tile.good .v{color:var(--accent)}
+.tile.cost{background:var(--warm-soft)} .tile.cost .v{color:var(--warm)}
+
+.alert{border-radius:8px;padding:10px 12px;font-size:.86rem;background:var(--warm-soft);color:var(--ink);border-left:3px solid var(--warm)}
+
+/* Barre de décomposition */
+.split{display:grid;gap:8px}
+.bar{display:flex;height:30px;border-radius:6px;overflow:hidden;background:var(--line-2)}
+.bar div{height:100%;transition:width .35s ease}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--ink-2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+@media (prefers-reduced-motion:reduce){.bar div{transition:none}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;min-width:0}
+.cardhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.cardhead .hint{font-size:.8rem}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:460px}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line-2)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:700;border-bottom:1px solid var(--line)}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.sum td{font-weight:700;border-bottom:1px solid var(--line)}
+td.delta-good{color:var(--accent)} td.delta-bad{color:var(--warm)}
+.ledger{display:grid;gap:0}
+.ledger div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.9rem}
+.ledger div span:last-child{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger div.total{border-bottom:none;border-top:1px solid var(--ink-3);font-weight:700;padding-top:8px}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:640px){.two{grid-template-columns:minmax(0,1fr)}}
+
+.legal{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.legal .card p,.legal .card li{font-size:.88rem;color:var(--ink-2)}
+.legal ul{margin:0;padding-left:18px;display:grid;gap:6px}
+blockquote{margin:0;padding:10px 14px;border-left:3px solid var(--turq);background:var(--accent-soft);border-radius:0 8px 8px 0;font-size:.9rem;color:var(--ink);font-style:italic}
+a{color:var(--accent)}
+.sources{font-size:.82rem;color:var(--ink-2)}
+.sources ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}
+.busy{opacity:.55;transition:opacity .15s}
+button.link{font:inherit;font-size:.82rem;background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;color:var(--ink-2);cursor:pointer}
+button.link:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">2R Aventure · Calculateur mobilité employeur</span>
+    <h1>Vélo de fonction par conversion de salaire</h1>
+    <p class="lead">Le salarié renonce à une petite part de son brut. L'employeur met à sa disposition un vélo, sans avantage en nature à déclarer. Les cotisations et l'impôt baissent : le vélo coûte au salarié bien moins que son prix.</p>
+    <span class="engine"><span class="dot" id="engineDot"></span><span id="engineTxt">Chargement du moteur de calcul Urssaf…</span></span>
+  </header>
+
+  <div class="layout">
+    <form id="f" autocomplete="off">
+      <fieldset>
+        <legend>Le salarié</legend>
+        <div class="field">
+          <label for="brut">Salaire brut mensuel actuel</label>
+          <div class="unit"><input type="number" id="brut" min="0" step="10" value="2800"><span>€ / mois</span></div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <span class="lbl">Statut</span>
+            <div class="seg" role="radiogroup" aria-label="Statut">
+              <label><input type="radio" name="cadre" value="non" checked>Non cadre</label>
+              <label><input type="radio" name="cadre" value="oui">Cadre</label>
+            </div>
+          </div>
+          <div class="field">
+            <label for="impot">Impôt sur le revenu</label>
+            <select id="impot">
+              <option value="bareme">Barème (foyer)</option>
+              <option value="perso">Taux personnalisé</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2" id="foyerRow">
+          <div class="field">
+            <label for="famille">Situation</label>
+            <select id="famille">
+              <option value="célibataire">Célibataire</option>
+              <option value="couple">En couple</option>
+              <option value="veuf">Veuf / veuve</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="enfants">Enfants à charge</label>
+            <input type="number" id="enfants" min="0" max="8" step="1" value="0">
+          </div>
+        </div>
+        <div class="field" id="persoRow" hidden>
+          <label for="tauxPerso">Taux de prélèvement à la source</label>
+          <div class="unit"><input type="number" id="tauxPerso" min="0" max="45" step="0.1" value="5"><span>%</span></div>
+        </div>
+        <p class="hint">Calcul sur un revenu salarial seul. En couple, le barème suppose un conjoint sans revenu : préférez le taux personnalisé.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Le vélo</legend>
+        <div class="row2">
+          <div class="field">
+            <label for="prix">Prix d'achat</label>
+            <div class="unit"><input type="number" id="prix" min="0" step="50" value="3000"><span>€ TTC</span></div>
+          </div>
+          <div class="field">
+            <label for="duree">Durée</label>
+            <select id="duree">
+              <option value="24">24 mois</option>
+              <option value="36" selected>36 mois</option>
+              <option value="48">48 mois</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="services">Entretien</label>
+          <div class="unit"><input type="number" id="services" min="0" step="1" value="10"><span>€ HT / mois</span></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Le dispositif</legend>
+        <div class="field">
+          <div class="rangehead"><label for="pc">Part du vélo prise en charge par l'employeur</label><span class="num" id="pcOut">0 %</span></div>
+          <input type="range" id="pc" min="0" max="100" step="5" value="0">
+          <p class="hint">Le reste est financé par la conversion de salaire.</p>
+        </div>
+        <div class="field">
+          <span class="lbl">Montant de la conversion</span>
+          <div class="seg" role="radiogroup" aria-label="Mode de conversion">
+            <label><input type="radio" name="mode" value="auto" checked>Neutre pour l'employeur</label>
+            <label><input type="radio" name="mode" value="manuel">Montant libre</label>
+          </div>
+        </div>
+        <div class="field" id="manuelRow" hidden>
+          <label for="R">Réduction de salaire brut</label>
+          <div class="unit"><input type="number" id="R" min="0" step="1" value="60"><span>€ / mois</span></div>
+        </div>
+        <label class="check"><input type="checkbox" id="tva" checked><span>TVA collectée sur la renonciation<small>Rescrit BOI-RES-TVA-000161 : la mise à disposition devient onéreuse, la TVA du vélo est récupérable</small></span></label>
+        <div class="field">
+          <label for="fmd">Forfait mobilités durables en complément</label>
+          <div class="unit"><input type="number" id="fmd" min="0" max="600" step="50" value="0"><span>€ / an</span></div>
+          <p class="hint">Jusqu'à 600 € par an, exonéré de cotisations et d'impôt. Cumulable.</p>
+        </div>
+        <label class="check"><input type="checkbox" id="reducIS"><span>Réduction d'impôt flotte de vélos<small>25 % des frais d'achat ou de location, jusqu'au 31/12/2027 (CGI art. 220 undecies A)</small></span></label>
+      </fieldset>
+    </form>
+
+    <div class="results" id="results" aria-live="polite">
+      <section class="hero">
+        <div class="formula">
+          <div><span class="big num" id="hR">—</span><span class="cap">de brut en moins chaque mois</span></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div><span class="big num" id="hNet">—</span><span class="cap">de net après impôt en moins</span></div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div><span class="big num" id="hVelo">—</span><span class="cap">de vélo et entretien, TTC</span></div>
+        </div>
+        <div class="tiles">
+          <div class="tile good"><span class="k">Gain du salarié</span><span class="v" id="tGain">—</span><span class="s" id="tGainS">par rapport à un achat personnel</span></div>
+          <div class="tile" id="tEmpBox"><span class="k">Solde employeur</span><span class="v" id="tEmp">—</span><span class="s" id="tEmpS">par mois</span></div>
+          <div class="tile"><span class="k">Le vélo revient au salarié à</span><span class="v" id="tPct">—</span><span class="s">de son prix</span></div>
+        </div>
+        <div class="alert" id="smicAlert" hidden></div>
+        <div class="split">
+          <span class="lbl">Qui paie le vélo du salarié ? (par mois, TTC)</span>
+          <div class="bar" id="bar" role="img" aria-label="Décomposition du financement du vélo"></div>
+          <div class="legend" id="legend"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardhead"><h2>Bulletin de paie, avant et après</h2><span class="hint">Montants mensuels · moteur Urssaf <span id="ver"></span></span></div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Ligne</th><th>Avant</th><th>Après</th><th>Écart</th></tr></thead>
+            <tbody id="paie"></tbody>
+          </table>
+        </div>
+        <p class="hint">Aucun avantage en nature n'apparaît sur le bulletin : la valeur du vélo mis à disposition est négligée (BOSS, avantages en nature, § 945).</p>
+      </section>
+
+      <section class="two">
+        <div class="card">
+          <h3>Côté employeur, par mois</h3>
+          <div class="ledger" id="ledEmp"></div>
+        </div>
+        <div class="card">
+          <h3>Côté salarié, par mois</h3>
+          <div class="ledger" id="ledSal"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardhead"><h2>Sur toute la durée</h2><button type="button" class="link" id="copy">Copier la synthèse</button></div>
+        <div class="ledger" id="ledTot"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="legal">
+    <div class="card">
+      <h3>La base : le BOSS</h3>
+      <blockquote>« Par tolérance, lorsque l'employeur met à disposition de manière permanente d'un salarié un vélo prêté, la valeur de l'avantage en nature constitué est négligée. »</blockquote>
+      <p>La tolérance vaut pour un vélo acheté ou loué par l'employeur. Elle n'est pas conditionnée à la participation du salarié. Elle se cumule avec le forfait mobilités durables et le remboursement des transports en commun.</p>
+    </div>
+    <div class="card">
+      <h3>Pourquoi l'effet est si fort</h3>
+      <p>Chaque euro de brut en moins supprime les cotisations salariales, les cotisations patronales et l'impôt correspondants. Entre 1 et 3 Smic, la réduction générale dégressive amplifie l'effet côté employeur : la baisse de coût dépasse souvent 1,5 € par euro de brut converti.</p>
+      <p>Le calculateur cherche la réduction de brut qui finance exactement la part du vélo non prise en charge.</p>
+    </div>
+    <div class="card">
+      <h3>Les règles du jeu</h3>
+      <ul>
+        <li>Un avenant au contrat de travail, signé et réversible, pour chaque salarié volontaire.</li>
+        <li>Le brut réduit reste au-dessus du Smic et du minimum conventionnel.</li>
+        <li>Une assiette plus basse réduit un peu les droits : retraite, chômage, indemnités journalières, prévoyance.</li>
+        <li>Le vélo reste propriété de l'employeur ou du loueur pendant la durée du contrat.</li>
+        <li>Le traitement TVA se valide avec l'expert-comptable.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="card sources">
+    <h3>Méthode et sources</h3>
+    <p>Salaires, cotisations et impôt sont calculés dans votre navigateur par <a href="https://mon-entreprise.urssaf.fr/d%C3%A9veloppeur/biblioth%C3%A8que-de-calcul" target="_blank" rel="noopener">la bibliothèque de calcul de mon-entreprise.urssaf.fr</a> (modèle social 11.1, moteur Publicodes), la même que le simulateur de coût d'embauche. Le coût mensuel du vélo est son prix HT réparti sur la durée, plus l'entretien. Hypothèses : entreprise de 20 à 49 salariés, versement mobilité non intégré. L'impact sur l'impôt sur les sociétés hors réduction flotte n'est pas modélisé. Estimation indicative, sans valeur de conseil juridique ou fiscal.</p>
+    <ul>
+      <li><a href="https://boss.gouv.fr/portail/accueil/autres-elements-de-remuneration/avantages-en-nature.html#titre-chapitre-4---avantage-en-nature-section-2---modalites-devaluatio-c-cas-particuliers-4-velo-mis-a-disposition-par-lem" target="_blank" rel="noopener">BOSS · Avantages en nature · Vélo mis à disposition par l'employeur</a></li>
+      <li><a href="https://bofip.impots.gouv.fr/bofip/14347-PGP.html/identifiant%3DBOI-RES-TVA-000161-20250430" target="_blank" rel="noopener">BOFiP · Rescrit BOI-RES-TVA-000161 · TVA des véhicules mis à disposition des salariés</a></li>
+      <li><a href="https://entreprendre.service-public.gouv.fr/vosdroits/F33808" target="_blank" rel="noopener">Service-public.fr · Forfait mobilités durables</a></li>
+      <li><a href="https://mon-entreprise.urssaf.fr/simulateurs/co%C3%BBt-embauche" target="_blank" rel="noopener">mon-entreprise.urssaf.fr · Simulateur de coût d'embauche</a></li>
+      <li><a href="https://2raventure.com/solutions-velos/" target="_blank" rel="noopener">2R Aventure · Solutions vélos employeur</a></li>
+    </ul>
+  </div>
+</div>
+
+<script type="module">
+const PUBLICODES = 'https://cdn.jsdelivr.net/npm/publicodes@1.10.3/+esm'
+const MODELE = 'https://cdn.jsdelivr.net/npm/modele-social@11.1.0/+esm'
+
+function makeCalc(engine) {
+  const ev = (r, u) => { const n = engine.evaluate(u ? { valeur: r, unité: u } : r); return n.nodeValue ?? 0 }
+  function situation(p, brut) {
+    const s = {
+      'dirigeant': 'non',
+      'salarié . contrat . salaire brut': `${Math.max(0, brut)} €/mois`,
+      'salarié . contrat . statut cadre': p.cadre ? 'oui' : 'non',
+      'entreprise . salariés . effectif . seuil': `'${p.effectif}'`,
+      'établissement . commune . taux versement mobilité': '0 %',
+    }
+    if (p.impot === 'perso') {
+      s['impôt . méthode de calcul'] = "'taux personnalisé'"
+      s['impôt . taux personnalisé'] = `${p.tauxPerso} %`
+    } else {
+      s['impôt . méthode de calcul'] = "'barème standard'"
+      s['impôt . foyer fiscal . situation de famille'] = `'${p.famille}'`
+      s['impôt . foyer fiscal . enfants à charge'] = `${p.enfants} enfant`
+    }
+    return s
+  }
+  const memo = new Map()
+  function paie(p, brut) {
+    const key = JSON.stringify([p.cadre, p.effectif, p.impot, p.tauxPerso, p.famille, p.enfants, Math.round(brut * 100)])
+    if (memo.has(key)) return memo.get(key)
+    engine.setSituation(situation(p, brut))
+    const o = {
+      brut: ev('salarié . rémunération . brut', '€/mois'),
+      netAvantImpot: ev('salarié . rémunération . net . à payer avant impôt', '€/mois'),
+      netImposable: ev('salarié . rémunération . net . imposable', '€/mois'),
+      impot: ev('impôt . montant', '€/mois'),
+      netApresImpot: ev('salarié . rémunération . net . payé après impôt', '€/mois'),
+      coutEmployeur: ev('salarié . coût total employeur', '€/mois'),
+      cotisSal: ev('salarié . cotisations . salarié', '€/mois'),
+      cotisPat: ev('salarié . cotisations . employeur', '€/mois'),
+      smic: ev('SMIC', '€/mois'),
+    }
+    if (memo.size > 400) memo.clear()
+    memo.set(key, o)
+    return o
+  }
+  function velo(p) {
+    const prixTTC = Math.max(0, p.prixTTC)
+    const prixHT = prixTTC / 1.2
+    const mensuelHT = prixHT / p.duree + p.servicesHT
+    return { prixTTC, prixHT, mensuelHT, mensuelTTC: mensuelHT * 1.2, amortAnnuel: prixHT / (p.duree / 12) }
+  }
+  function bilan(p, R) {
+    const avant = paie(p, p.brut)
+    const apres = paie(p, p.brut - R)
+    const v = velo(p)
+    const tvaCollectee = p.tva ? R * 0.2 / 1.2 : 0
+    const fmd = p.fmd / 12
+    const reducIS = p.reducIS ? 0.25 * v.mensuelHT : 0
+    const economieCharges = avant.coutEmployeur - apres.coutEmployeur
+    const soldeEmployeur = economieCharges - v.mensuelHT - tvaCollectee - fmd + reducIS
+    const perteNet = avant.netApresImpot - apres.netApresImpot
+    const gainSalarie = v.mensuelTTC - perteNet + fmd
+    return { R, avant, apres, v, tvaCollectee, fmd, reducIS, economieCharges, soldeEmployeur, perteNet, gainSalarie,
+      baisseCotisSal: avant.cotisSal - apres.cotisSal, baisseCotisPat: avant.cotisPat - apres.cotisPat,
+      baisseImpot: avant.impot - apres.impot, sousSmic: apres.brut < avant.smic - 0.005 }
+  }
+  function conversionNeutre(p) {
+    const v = velo(p)
+    const cible = v.mensuelHT * (1 - p.priseCharge / 100)
+    if (cible <= 0) return 0
+    const cout0 = paie(p, p.brut).coutEmployeur
+    const tv = p.tva ? 0.2 / 1.2 : 0
+    const f = R => (cout0 - paie(p, p.brut - R).coutEmployeur) - R * tv - cible
+    let x0 = 0, f0 = -cible, x1 = Math.min(cible, p.brut), f1 = f(x1)
+    for (let i = 0; i < 12; i++) {
+      if (Math.abs(f1) < 0.005) return Math.ceil(x1 * 100) / 100
+      if (f1 === f0) break
+      const x2 = Math.min(p.brut, Math.max(0, x1 - f1 * (x1 - x0) / (f1 - f0)))
+      x0 = x1; f0 = f1; x1 = x2; f1 = f(x1)
+    }
+    let a = 0, b = p.brut
+    for (let i = 0; i < 40 && b - a > 0.005; i++) { const m = (a + b) / 2; if (f(m) < 0) a = m; else b = m }
+    return Math.ceil(b * 100) / 100
+  }
+  return { bilan, conversionNeutre }
+}
+
+const $ = id => document.getElementById(id)
+const eur = (x, d = 2) => (isFinite(x) ? x : 0).toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d }) + ' €'
+const signed = (x, d = 2) => { const r = Math.round(x * 10 ** d) / 10 ** d; return (r > 0 ? '+' : r < 0 ? '−' : '') + eur(Math.abs(r), d) }
+const radio = n => document.querySelector(`input[name="${n}"]:checked`).value
+const num = (id, def = 0) => { const v = parseFloat($(id).value); return isFinite(v) ? v : def }
+
+function readParams() {
+  return {
+    brut: Math.max(0, num('brut')), cadre: radio('cadre') === 'oui', effectif: 'moins de 50',
+    impot: $('impot').value, famille: $('famille').value,
+    enfants: Math.max(0, Math.round(num('enfants'))), tauxPerso: Math.max(0, num('tauxPerso')),
+    prixTTC: Math.max(0, num('prix')), duree: parseInt($('duree').value, 10), servicesHT: Math.max(0, num('services')),
+    priseCharge: num('pc'), mode: radio('mode'), Rmanuel: Math.max(0, num('R')),
+    tva: $('tva').checked, fmd: Math.min(600, Math.max(0, num('fmd'))), reducIS: $('reducIS').checked,
+  }
+}
+
+function syncVisibility() {
+  const perso = $('impot').value === 'perso'
+  $('foyerRow').hidden = perso; $('persoRow').hidden = !perso
+  $('manuelRow').hidden = radio('mode') !== 'manuel'
+  $('pcOut').textContent = $('pc').value + ' %'
+}
+
+let calc = null, last = null
+function render() {
+  syncVisibility()
+  if (!calc) return
+  const p = readParams()
+  if (p.brut <= 0) return
+  const R = p.mode === 'auto' ? calc.conversionNeutre(p) : Math.min(p.brut, p.Rmanuel)
+  const b = calc.bilan(p, R)
+  last = { p, b }
+  const n = p.duree
+
+  $('hR').textContent = eur(R)
+  $('hNet').textContent = eur(b.perteNet)
+  $('hVelo').textContent = eur(b.v.mensuelTTC)
+  $('tGain').textContent = signed(b.gainSalarie)
+  $('tGainS').textContent = `soit ${eur(b.gainSalarie * n, 0)} sur ${n} mois, vs achat personnel`
+  $('tEmp').textContent = signed(b.soldeEmployeur)
+  $('tEmpBox').className = 'tile ' + (b.soldeEmployeur >= -0.005 ? 'good' : 'cost')
+  $('tEmpS').textContent = b.soldeEmployeur >= -0.005 ? 'par mois · opération neutre ou positive' : `par mois · soit ${eur(-b.soldeEmployeur * 12, 0)} par an investis`
+  const netCost = Math.max(0, b.perteNet - b.fmd)
+  $('tPct').textContent = b.v.mensuelTTC > 0 ? Math.round(100 * netCost / b.v.mensuelTTC) + ' %' : '—'
+
+  const a = $('smicAlert')
+  if (b.sousSmic) { a.hidden = false; a.textContent = `Le brut après conversion (${eur(b.apres.brut)}) passe sous le Smic mensuel (${eur(b.avant.smic)}). La conversion n'est pas possible à ce niveau : augmentez la prise en charge employeur.` }
+  else if (R > 0 && b.apres.brut < b.avant.smic * 1.02) { a.hidden = false; a.textContent = `Le brut après conversion reste juste au-dessus du Smic. Vérifiez aussi le minimum conventionnel de la branche.` }
+  else a.hidden = true
+
+  // Décomposition du vélo TTC
+  const total = b.v.mensuelTTC
+  const parts = [
+    { k: 'Net du salarié', v: netCost, c: 'var(--bar-net)' },
+    { k: 'Forfait mobilités durables', v: Math.min(b.fmd, b.perteNet), c: 'var(--bar-fmd)' },
+    { k: 'Impôt sur le revenu évité', v: b.baisseImpot, c: 'var(--bar-ir)' },
+    { k: 'Cotisations salariales évitées', v: b.baisseCotisSal, c: 'var(--bar-cot)' },
+  ]
+  const covered = parts.reduce((s, x) => s + Math.max(0, x.v), 0)
+  parts.push({ k: 'Employeur (cotisations patronales évitées et prise en charge)', v: Math.max(0, total - covered), c: 'var(--bar-velo)' })
+  const denom = Math.max(total, covered) || 1
+  $('bar').innerHTML = parts.filter(x => x.v > 0.005).map(x => `<div style="width:${(100 * x.v / denom).toFixed(2)}%;background:${x.c}" title="${x.k} : ${eur(x.v)}"></div>`).join('')
+  $('legend').innerHTML = parts.filter(x => x.v > 0.005).map(x => `<span><i style="background:${x.c}"></i>${x.k} <span class="num">${eur(x.v)}</span></span>`).join('')
+
+  // Bulletin
+  const rows = [
+    ['Salaire brut', 'brut', true],
+    ['Cotisations salariales', 'cotisSal', false],
+    ['Net avant impôt', 'netAvantImpot', true],
+    ['Net imposable', 'netImposable', false],
+    ['Impôt (prélèvement à la source)', 'impot', false],
+    ['Net versé après impôt', 'netApresImpot', true],
+    ['Cotisations patronales', 'cotisPat', false],
+    ['Coût total employeur', 'coutEmployeur', true],
+  ]
+  const lowerIsGood = new Set(['cotisSal', 'impot', 'cotisPat', 'coutEmployeur'])
+  $('paie').innerHTML = rows.map(([l, k, sum]) => {
+    const d = b.apres[k] - b.avant[k]
+    const cls = Math.abs(d) < 0.005 ? '' : ((d < 0) === lowerIsGood.has(k) ? 'delta-good' : 'delta-bad')
+    return `<tr class="${sum ? 'sum' : ''}"><td>${l}</td><td class="num">${eur(b.avant[k])}</td><td class="num">${eur(b.apres[k])}</td><td class="num ${cls}">${signed(d)}</td></tr>`
+  }).join('') + `<tr><td>Avantage en nature vélo</td><td class="num">${eur(0)}</td><td class="num">${eur(0)}</td><td class="num">—</td></tr>`
+
+  const L = (arr, el) => $(el).innerHTML = arr.map(([k, v, t]) => `<div class="${t ? 'total' : ''}"><span>${k}</span><span>${v}</span></div>`).join('')
+  const emp = [
+    ['Baisse du coût salarial', signed(b.economieCharges)],
+    ['  dont brut converti', signed(R)],
+    ['  dont cotisations patronales', signed(b.baisseCotisPat)],
+    ['Vélo et entretien (HT)', signed(-b.v.mensuelHT)],
+  ]
+  if (p.tva) emp.push(['TVA collectée sur la renonciation', signed(-b.tvaCollectee)])
+  if (b.fmd > 0) emp.push(['Forfait mobilités durables', signed(-b.fmd)])
+  if (b.reducIS > 0) emp.push(["Réduction d'impôt flotte (25 %)", signed(b.reducIS)])
+  emp.push(['Solde employeur', signed(b.soldeEmployeur), true])
+  L(emp, 'ledEmp')
+  const sal = [
+    ['Baisse du salaire brut', signed(-R)],
+    ['Cotisations salariales en moins', signed(b.baisseCotisSal)],
+    ['Impôt sur le revenu en moins', signed(b.baisseImpot)],
+    ['Net après impôt', signed(-b.perteNet), true],
+  ]
+  if (b.fmd > 0) sal.push(['Forfait mobilités durables', signed(b.fmd)])
+  sal.push(['Vélo et entretien mis à disposition (TTC)', signed(b.v.mensuelTTC)])
+  sal.push(['Gain vs achat personnel', signed(b.gainSalarie), true])
+  L(sal, 'ledSal')
+  const tot = [
+    [`Prix du vélo`, eur(b.v.prixTTC, 0) + ' TTC'],
+    [`Amortissement annuel (${n / 12} ans, HT)`, eur(b.v.amortAnnuel, 0)],
+    [`Brut converti sur ${n} mois`, eur(R * n, 0)],
+    [`Net en moins pour le salarié`, eur(b.perteNet * n, 0)],
+    [`Cotisations (salariales + patronales) et impôt évités`, eur((b.baisseCotisSal + b.baisseCotisPat + b.baisseImpot) * n, 0)],
+    [`Gain total du salarié`, signed(b.gainSalarie * n, 0), true],
+    [`Solde total employeur`, signed(b.soldeEmployeur * n, 0), true],
+  ]
+  L(tot, 'ledTot')
+}
+
+let t = null
+const schedule = () => { syncVisibility(); clearTimeout(t); $('results').classList.add('busy'); t = setTimeout(() => { try { render() } finally { $('results').classList.remove('busy') } }, 120) }
+$('f').addEventListener('input', schedule)
+$('f').addEventListener('change', schedule)
+$('f').addEventListener('submit', e => e.preventDefault())
+
+$('copy').addEventListener('click', async () => {
+  if (!last) return
+  const { p, b } = last
+  const txt = [
+    `Vélo de fonction par conversion de salaire (${p.duree} mois)`,
+    `Salaire brut : ${eur(p.brut)} → ${eur(b.apres.brut)} (−${eur(b.R)} / mois)`,
+    `Net après impôt : −${eur(b.perteNet)} / mois`,
+    `Vélo et entretien mis à disposition : ${eur(b.v.mensuelTTC)} TTC / mois`,
+    `Gain salarié vs achat personnel : ${signed(b.gainSalarie)} / mois, ${signed(b.gainSalarie * p.duree, 0)} au total`,
+    `Solde employeur : ${signed(b.soldeEmployeur)} / mois`,
+    `Calcul : moteur Urssaf mon-entreprise (modèle social 11.1). Estimation indicative.`,
+  ].join('\n')
+  const btn = $('copy')
+  try { await navigator.clipboard.writeText(txt); btn.textContent = 'Synthèse copiée' }
+  catch { btn.textContent = 'Copie refusée par le navigateur' }
+  setTimeout(() => btn.textContent = 'Copier la synthèse', 2200)
+})
+
+syncVisibility()
+try {
+  const [{ default: Engine }, { default: rules }] = await Promise.all([import(PUBLICODES), import(MODELE)])
+  const engine = new Engine(rules, { logger: { log() {}, warn() {}, error() {} } })
+  calc = makeCalc(engine)
+  $('engineDot').className = 'dot ok'
+  $('engineTxt').textContent = 'Moteur de calcul Urssaf chargé · modèle social 11.1 · barèmes 2026'
+  $('ver').textContent = '11.1'
+  render()
+} catch (err) {
+  $('engineDot').className = 'dot err'
+  $('engineTxt').textContent = "Le moteur de calcul Urssaf n'a pas pu se charger. Rechargez la page ou vérifiez votre connexion."
+  console.error(err)
+}
+</script>
+
+</body></html>
