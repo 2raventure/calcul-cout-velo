@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Vélo de fonction par conversion de salaire</title>
 <meta name="description" content="Calculateur 2R Aventure : conversion de salaire brut et mise à disposition d'un vélo, calculée avec le moteur officiel de l'Urssaf.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -104,6 +104,14 @@ td.delta-good{color:var(--accent)} td.delta-bad{color:var(--warm)}
 .ledger div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.9rem}
 .ledger div span:last-child{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .ledger div.total{border-bottom:none;border-top:1px solid var(--ink-3);font-weight:700;padding-top:8px}
+.ledger div.sub{border-bottom:1px dashed var(--line);border-top:1px solid var(--line);font-weight:600;color:var(--ink)}
+.ledger div.grand{border-bottom:none;border-top:2px solid var(--ink);font-weight:700;color:var(--ink);font-size:1rem;padding-top:9px}
+.ledger div.detail{font-size:.8rem;color:var(--ink-3);padding:3px 0 3px 14px;border-bottom:none}
+.recap{font-size:.95rem;color:var(--text);max-width:70ch}
+.recap strong{color:var(--ink)}
+.recapcol{display:grid;gap:8px;align-content:start}
+.recapcol h3{font-size:.82rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3)}
+.two.flat{gap:24px}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 @media (max-width:640px){.two{grid-template-columns:minmax(0,1fr)}}
 
@@ -248,7 +256,7 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
           <div><span class="big num" id="hVelo">—</span><span class="cap">de vélo et entretien, TTC</span></div>
         </div>
         <div class="tiles">
-          <div class="tile good"><span class="k">Gain du salarié</span><span class="v" id="tGain">—</span><span class="s" id="tGainS">par rapport à un achat personnel</span></div>
+          <div class="tile good"><span class="k">Gain du salarié vs achat personnel</span><span class="v" id="tGain">—</span><span class="s" id="tGainS">par mois</span></div>
           <div class="tile" id="tEmpBox"><span class="k">Solde employeur</span><span class="v" id="tEmp">—</span><span class="s" id="tEmpS">par mois</span></div>
           <div class="tile"><span class="k">Le vélo revient au salarié à</span><span class="v" id="tPct">—</span><span class="s">de son prix</span></div>
         </div>
@@ -283,8 +291,19 @@ button.link:hover{border-color:var(--accent);color:var(--accent)}
       </section>
 
       <section class="card">
-        <div class="cardhead"><h2>Sur toute la durée</h2><button type="button" class="link" id="copy">Copier la synthèse</button></div>
-        <div class="ledger" id="ledTot"></div>
+        <div class="cardhead"><h2 id="totTitle">Sur toute la durée</h2><button type="button" class="link" id="copy">Copier la synthèse</button></div>
+        <p class="recap" id="totRecap"></p>
+        <div class="two flat">
+          <div class="recapcol">
+            <h3>Le salarié</h3>
+            <div class="ledger" id="ledTotSal"></div>
+          </div>
+          <div class="recapcol">
+            <h3>L'employeur</h3>
+            <div class="ledger" id="ledTotEmp"></div>
+          </div>
+        </div>
+        <p class="hint" id="totNote"></p>
       </section>
     </div>
   </div>
@@ -468,7 +487,7 @@ function render() {
   $('hNet').textContent = eur(b.perteNet)
   $('hVelo').textContent = eur(b.v.mensuelTTC)
   $('tGain').textContent = signed(b.gainSalarie)
-  $('tGainS').textContent = `soit ${eur(b.gainSalarie * n, 0)} sur ${n} mois, vs achat personnel`
+  $('tGainS').textContent = `par mois, soit ${eur(b.gainSalarie * n, 0)} sur ${n} mois${b.fmd > 0 ? ', forfait mobilités inclus' : ''}`
   $('tEmp').textContent = signed(b.soldeEmployeur)
   $('tEmpBox').className = 'tile ' + (b.soldeEmployeur >= -0.005 ? 'good' : 'cost')
   $('tEmpS').textContent = b.soldeEmployeur >= -0.005 ? 'par mois · opération neutre ou positive' : `par mois · soit ${eur(-b.soldeEmployeur * 12, 0)} par an investis`
@@ -541,16 +560,51 @@ function render() {
   sal.push(['Vélo et entretien mis à disposition (TTC)', signed(b.v.mensuelTTC)])
   sal.push(['Gain vs achat personnel', signed(b.gainSalarie), true])
   L(sal, 'ledSal')
-  const tot = [
-    [`Prix du vélo`, eur(b.v.prixTTC, 0) + ' TTC'],
-    [`Amortissement annuel (${n / 12} ans, HT)`, eur(b.v.amortAnnuel, 0)],
-    [`Brut converti sur ${n} mois`, eur(R * n, 0)],
-    [`Net en moins pour le salarié`, eur(b.perteNet * n, 0)],
-    [`Cotisations (salariales + patronales) et impôt évités`, eur((b.baisseCotisSal + b.baisseCotisPat + b.baisseImpot) * n, 0)],
-    [`Gain total du salarié`, signed(b.gainSalarie * n, 0), true],
-    [`Solde total employeur`, signed(b.soldeEmployeur * n, 0), true],
+  // Récapitulatif sur la durée
+  const ans = n / 12
+  const L2 = (arr, el) => $(el).innerHTML = arr.map(([k, v, c]) => `<div class="${c || ''}"><span>${k}</span><span>${v}</span></div>`).join('')
+  const veloTot = b.v.mensuelTTC * n
+  const entretienTot = p.servicesHT * 1.2 * n
+  const netTot = b.perteNet * n
+  const ecoVelo = veloTot - netTot
+  const fmdTot = b.fmd * n
+  const gainTot = ecoVelo + fmdTot
+  $('totTitle').textContent = `Sur toute la durée : ${n} mois`
+  const salTot = [
+    ['Vélo et entretien, s\'il les achetait lui-même', eur(veloTot, 0)],
+    [`vélo ${eur(b.v.prixTTC, 0)} TTC + entretien ${eur(entretienTot, 0)} TTC`, '', 'detail'],
+    ['Ce qu\'il paie via son salaire (net après impôt en moins)', signed(-netTot, 0)],
+    [`brut converti ${eur(R * n, 0)}, moins ${eur(b.baisseCotisSal * n, 0)} de cotisations et ${eur(b.baisseImpot * n, 0)} d'impôt évités`, '', 'detail'],
+    ['Économie sur le vélo', signed(ecoVelo, 0), 'sub'],
   ]
-  L(tot, 'ledTot')
+  if (fmdTot > 0) salTot.push([`Forfait mobilités durables perçu (${eur(p.fmd, 0)} × ${ans.toLocaleString('fr-FR')} ans)`, signed(fmdTot, 0)])
+  salTot.push(['Gain total du salarié', signed(gainTot, 0), 'grand'])
+  L2(salTot, 'ledTotSal')
+
+  const convTot = (b.economieCharges - b.v.mensuelHT - b.tvaCollectee) * n
+  const empTot = [
+    ['Baisse du coût salarial', signed(b.economieCharges * n, 0)],
+    [`brut converti ${eur(R * n, 0)} + cotisations patronales ${eur(b.baisseCotisPat * n, 0)}`, '', 'detail'],
+    ['Vélo et entretien (HT)', signed(-b.v.mensuelHT * n, 0)],
+  ]
+  if (p.tva) empTot.push(['TVA collectée sur la renonciation', signed(-b.tvaCollectee * n, 0)])
+  empTot.push(['Solde de la conversion', signed(convTot, 0), 'sub'])
+  if (fmdTot > 0) empTot.push(['Forfait mobilités durables versé', signed(-fmdTot, 0)])
+  if (b.reducIS > 0) empTot.push(["Réduction d'impôt flotte (25 %)", signed(b.reducIS * n, 0)])
+  empTot.push(['Solde total employeur', signed(b.soldeEmployeur * n, 0), 'grand'])
+  L2(empTot, 'ledTotEmp')
+
+  const phr = [`Pendant ${n} mois, le salarié roule sur un vélo de <strong>${eur(b.v.prixTTC, 0)}</strong> entretenu.`,
+    `Il y consacre <strong>${eur(netTot, 0)}</strong> de salaire net, au lieu de <strong>${eur(veloTot, 0)}</strong> s'il l'achetait.`]
+  if (fmdTot > 0) phr.push(`Il reçoit aussi <strong>${eur(fmdTot, 0)}</strong> de forfait mobilités durables.`)
+  phr.push(`Au total, il gagne <strong>${eur(gainTot, 0)}</strong>.`)
+  const soldeEmpTot = b.soldeEmployeur * n
+  if (Math.abs(convTot) < 1 && fmdTot > 0) phr.push(`Pour l'employeur, la conversion est neutre : son seul coût est le forfait mobilités durables.`)
+  else if (Math.abs(soldeEmpTot) < 1) phr.push(`Pour l'employeur, l'opération est neutre.`)
+  else if (soldeEmpTot < 0) phr.push(`L'employeur y investit <strong>${eur(-soldeEmpTot, 0)}</strong>.`)
+  else phr.push(`L'employeur y gagne <strong>${eur(soldeEmpTot, 0)}</strong>.`)
+  $('totRecap').innerHTML = phr.join(' ')
+  $('totNote').textContent = `Amortissement comptable du vélo : ${eur(b.v.amortAnnuel, 0)} HT par an sur ${ans.toLocaleString('fr-FR')} ans. Montants arrondis à l'euro.`
 }
 
 let t = null
@@ -582,7 +636,8 @@ $('copy').addEventListener('click', async () => {
     `Salaire brut : ${eur(p.brut)} → ${eur(b.apres.brut)} (−${eur(b.R)} / mois)`,
     `Net après impôt : −${eur(b.perteNet)} / mois`,
     `Vélo et entretien mis à disposition : ${eur(b.v.mensuelTTC)} TTC / mois`,
-    `Gain salarié vs achat personnel : ${signed(b.gainSalarie)} / mois, ${signed(b.gainSalarie * p.duree, 0)} au total`,
+    `Sur ${p.duree} mois : vélo et entretien ${eur(b.v.mensuelTTC * p.duree, 0)} TTC, payés ${eur(b.perteNet * p.duree, 0)} en salaire net${b.fmd > 0 ? `, forfait mobilités durables perçu ${eur(b.fmd * p.duree, 0)}` : ''}`,
+    `Gain total du salarié vs achat personnel : ${signed(b.gainSalarie * p.duree, 0)}`,
     `Solde employeur : ${signed(b.soldeEmployeur)} / mois`,
     `Calcul : moteur Urssaf mon-entreprise (modèle social). Estimation indicative.`,
   ].join('\n')
